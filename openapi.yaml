@@ -1,0 +1,591 @@
+openapi: 3.1.0
+info:
+  version: '1.1'
+  title: SFG Brewery API
+  license:
+    name: GNU GPLv3
+    url: 'https://www.gnu.org/licenses/gpl.txt'
+  contact:
+    name: John Thompson
+    url: 'https://springframework.guru'
+servers:
+  - url: 'http://localhost:8080'
+    description: Local Host
+  - url: 'http://api.springframework.guru'
+    description: Demo API
+tags:
+  - name: Beer Service
+    description: Brewey Beer Operations
+  - name: Order Service
+    description: Brewery Order Operations
+security: 
+  -  {}    
+paths:
+  /api/v1/beer:
+    get:
+      description: List Beers
+      summary: List Beers
+      operationId: listBeers
+      tags:
+        - Beer Service
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/BeerName'
+        - $ref: '#/components/parameters/BeerStyle'
+        - $ref: '#/components/parameters/ShowInventoryOnHand'
+      responses:
+        '200':
+          description: List Beers Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BeerPagedList'
+        '404':
+          description: Not Found'        
+    post:
+      description: Create New Beer
+      summary: Create New Beer
+      operationId: createBeerV1
+      tags:
+        - Beer Service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Beer'
+      responses:
+        '201':
+          description: Create new beer response
+          headers:
+            Location:
+              description: Reference to created beer
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: Bad Request
+  '/api/v1/beer/{beerId}':
+    get:
+      description: Get Beer by Id
+      summary: Get Beer by Id
+      operationId: getBeerById
+      tags:
+        - Beer Service
+      parameters:
+        - $ref: '#/components/parameters/BeerId'
+        - $ref: '#/components/parameters/ShowInventoryOnHand'
+      responses:
+        '200':
+          description: Get Beer by id Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Beer'
+        '404':
+          description: Not Found
+    put:
+      description: Update Beer by Id
+      summary: Update Beer by Id
+      operationId: updateBeerByIdV1
+      tags:
+        - Beer Service
+      parameters:
+        - $ref: '#/components/parameters/BeerId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Beer'
+      responses:
+        '204':
+          description: Beer Updated
+        '400':
+          description: Bad Reqeust
+        '404':
+          description: Not Found
+        '409':
+          description: Conflict
+    delete:
+      summary: Delete Beer
+      description: Delete Beer by Id
+      operationId: v1DeleteBeer
+      tags:
+        - Beer Service
+      parameters:
+        - $ref: '#/components/parameters/BeerId'
+      responses:
+        '204':
+          description: Delelted
+        '404':
+          description: Not Found
+  '/api/v1/beerUpc/{upc}':
+    get:
+      description: Get Beer by UPC Code
+      summary: Get Beer by UPC
+      operationId: getByUPCCode
+      parameters:
+        - $ref: '#/components/parameters/Upc'
+      tags:
+        - Beer Service
+      responses:
+        '200':
+          description: Get Beer by UPC Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Beer'
+        '404':
+          description: Not Found
+  /api/v1/customers:
+    post:
+      description: Register as new customer
+      summary: Register as new customer
+      operationId: createNewCustomer
+      tags:
+        - Order Service
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '201':
+          description: Customer Created
+          headers:
+            Location:
+              description: Reference to created customer
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: Bad Reqeust
+        '404':
+          description: Not Found
+        '409':
+          description: Conflict
+  '/api/v1/customers/{customerId}':
+    parameters:
+      - $ref: '#/components/parameters/CustomerId'
+    get:
+      description: Get customer by Id
+      summary: Get Customer by Id
+      operationId: getByCustomerId
+      tags:
+        - Order Service
+      responses:
+        '200':
+          description: HTTP Okay
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: Not Found
+    put:
+      description: Update Customer by Id
+      summary: Update Customer by Id
+      operationId: UpdateByCustomerId
+      tags:
+        - Order Service
+      parameters:
+        - $ref: '#/components/parameters/CustomerId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '204':
+          description: Beer Updated
+        '400':
+          description: Bad Reqeust
+        '404':
+          description: Not Found
+        '409':
+          description: Conflict
+  '/api/v1/customers/{customerId}/orders':
+    parameters:
+      - $ref: '#/components/parameters/CustomerId'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+    get:
+      description: List Orders
+      summary: List Orders
+      operationId: listCustomerOrders
+      tags:
+        - Order Service
+      responses:
+        '200':
+          description: List Order Reponse
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BeerOrderPagedList'
+        '404':
+          description: Not Found
+    post:
+      description: Place Order
+      summary: Place Order
+      operationId: createOrder
+      tags:
+        - Order Service
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BeerOrder'
+      responses:
+        '201':
+          description: Order Created
+          headers:
+            Location:
+              description: Reference to created Order
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: Bad Reqeust
+        '404':
+          description: Not Found
+        '409':
+          description: Conflict
+      callbacks:
+        orderStatusChange:
+          '{$request.body#/orderStatusCallback}':
+            description: Webhook post to reecive notifcations of order status changes.
+            summary: WebHook for Order Status Change
+            post: 
+              summary: Post back for order status change.
+              requestBody:
+                $ref: '#/components/requestBodies/OrderStatusCallback'
+              responses:
+                '200':
+                  description: Okay
+                '400':
+                  description: Bad Request  
+  '/api/v1/customers/{customerId}/orders/{orderId}':
+    parameters:
+      - $ref: '#/components/parameters/CustomerId'
+      - $ref: '#/components/parameters/OrderId'
+    get:
+      description: Get Order By Id
+      summary: Get Order by id
+      operationId: getCustomerOrderById
+      tags:
+        - Order Service
+      responses:
+        '200':
+          description: HTTP Okay
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BeerOrder'
+        '404':
+          description: Customer Id or Order Id Not Found
+  '/api/v1/customers/{customerId}/orders/{orderId}/pickup':
+    parameters:
+      - $ref: '#/components/parameters/CustomerId'
+      - $ref: '#/components/parameters/OrderId'
+    put:
+      description: Pickup Order
+      summary: Pickup Order
+      operationId: pickupCustomerOrder
+      tags:
+        - Order Service
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Reqeust
+        '404':
+          description: Not Found
+        '409':
+          description: Conflict
+components:
+  parameters:
+    BeerId:
+      name: beerId
+      in: path
+      description: Beer Id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    BeerName:
+      name: beerName
+      in: query
+      description: Beer Name
+      required: false
+      schema:
+        type: string
+    BeerStyle:
+      name: beerStyle
+      in: query
+      description: Beer Style
+      required: false
+      schema:
+        $ref: '#/components/schemas/BeerStyleEnum'
+    CustomerId:
+      name: customerId
+      in: path
+      description: Customer Id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ShowInventoryOnHand:
+      name: showInventoryOnHand
+      in: query
+      description: Show Inventory On Hand
+      required: false
+      schema:
+        type: boolean
+        default: false
+    Page:
+      name: pageNumber
+      in: query
+      description: Page number.
+      required: false
+      schema:
+        type: integer
+        format: int32
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      description: Page size.
+      required: false
+      schema:
+        type: integer
+        format: int32
+        default: 25
+    OrderId:
+      name: orderId
+      in: path
+      description: Order Id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Upc:
+      name: upc
+      in: path
+      description: UPC Code
+      required: true
+      schema:
+        type: string
+  schemas:
+    BaseItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        version:
+          type: integer
+          readOnly: true
+        createdDate:
+          type: string
+          format: date-time
+          readOnly: true
+        lastModifiedDate:
+          type: string
+          format: date-time
+          readOnly: true
+    Beer:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/BaseItem'
+      required:
+        - beerName
+        - beerStyle
+        - price
+        - upc
+      properties:
+        beerName:
+          type: string
+        beerStyle:
+          $ref: '#/components/schemas/BeerStyleEnum'
+        upc:
+          type: string
+        quantityOnHand:
+          type: integer
+        price:
+          type: string
+          format: decimal
+    BeerPagedList:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PagedResponse'
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Beer'
+    BeerOrder:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/BaseItem'
+      required:
+        - customerId
+      properties:
+        customerId:
+          type: string
+          format: uuid
+        customerRef:
+          type: string
+        beerOrderLines:
+          type: array
+          items:
+            $ref: '#/components/schemas/BeerOrderLine'
+        orderStatus:
+          $ref: '#/components/schemas/OrderStatusEnum'
+        orderStatusCallbackUrl:
+          type: string
+          format: uri
+    BeerOrderPagedList:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PagedResponse'
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/BeerOrder'
+    BeerOrderLine:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/BaseItem'
+      required:
+        - upc
+        - orderQuantity
+      properties:
+        beerId:
+          type: string
+          format: uuid
+          readOnly: true
+        upc:
+          type: string
+        orderQuantity:
+          type: integer
+          minimum: 1
+          maximum: 999
+        quantityAllocated:
+          type: integer
+          readOnly: true
+    BeerStyleEnum:
+      type: string
+      enum:
+        - LAGER
+        - PILSNER
+        - STOUT
+        - GOSE
+        - PORTER
+        - ALE
+        - WHEAT
+        - IPA
+        - PALE_ALE
+        - SAISON
+    Customer:
+      type: object
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/BaseItem'
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+    PagedResponse:
+      type: object
+      properties:
+        pageable:
+          type: object
+          properties:
+            sort:
+              type: object
+              properties:
+                sorted:
+                  type: boolean
+                unsorted:
+                  type: boolean
+            offset:
+              type: integer
+              format: int32
+            pageNumber:
+              type: integer
+              format: int32
+            pageSize:
+              type: integer
+              format: int32
+            paged:
+              type: boolean
+            unpaged:
+              type: boolean
+        totalPages:
+          type: integer
+          format: int32
+        last:
+          type: boolean
+        totalElements:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        number:
+          type: integer
+          format: int32
+        numberOfElements:
+          type: integer
+          format: int32
+        sort:
+          type: object
+          properties:
+            sorted:
+              type: boolean
+            unsorted:
+              type: boolean
+        first:
+          type: boolean
+    OrderStatusEnum:
+      type: string
+      enum:
+        - NEW
+        - VERIFIED
+        - ALLOCATED
+        - READY
+        - PICKED_UP
+    OrderStatusUpdate:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/BaseItem'
+      properties:
+        orderId:
+          type: string
+          format: uuid
+        customerRef:
+          type: string
+        orderStatus:
+          $ref: '#/components/schemas/OrderStatusEnum'
+  requestBodies:
+    OrderStatusCallback:
+      description: Order Status Update
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              orderId:
+                type: string
+                format: uuid
+              orderStatus:
+                $ref: '#/components/schemas/OrderStatusUpdate'
