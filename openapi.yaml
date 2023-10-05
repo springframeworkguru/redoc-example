@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
-  version: '1.1'
-  title: SFG Brewery API2
+  version: '1.12'
+  title: SFG Brewery API
   license:
     name: GNU GPLv3
     url: 'https://www.gnu.org/licenses/gpl.txt'
